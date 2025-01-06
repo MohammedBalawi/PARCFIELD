@@ -1,0 +1,12 @@
+specVersion: "v1beta"
+serviceId: "launch_app"
+location: "us-central1"
+schema:
+  source: "./schema"
+  datasource:
+    postgresql:
+      database: "fdcdb"
+      cloudSql:
+        instanceId: "launch_app-fdc"
+      # schemaValidation: "COMPATIBLE"
+connectorDirs: ["./connector"]
