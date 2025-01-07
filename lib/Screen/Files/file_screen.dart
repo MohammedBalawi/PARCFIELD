@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:launch_app/components/context-extenssion.dart';
@@ -25,28 +26,98 @@ class _FileScreenState extends State<FileScreen> {
     super.initState();
     fetchAllFiles();
   }
+  //
+  // Future<void> fetchAllFiles() async {
+  //   setState(() {
+  //     isLoadingFiles = true;
+  //   });
+  //
+  //   List<Map<String, dynamic>> files = [];
+  //
+  //   final ListResult uploadResult =
+  //       await FirebaseStorage.instance.ref().child('uploads').listAll();
+  //   files.addAll(await _fetchFilesFromResult(uploadResult, 'uploads'));
+  //
+  //   final ListResult downloadResult =
+  //       await FirebaseStorage.instance.ref().child('download').listAll();
+  //   files.addAll(await _fetchFilesFromResult(downloadResult, 'download'));
+  //
+  //   files.sort((a, b) => b['date'].compareTo(a['date']));
+  //
+  //   setState(() {
+  //     uploadedFiles = files;
+  //     isLoadingFiles = false;
+  //   });
+  // }
+  //
+  // Future<List<Map<String, dynamic>>> _fetchFilesFromResult(
+  //     ListResult result, String source) async {
+  //   List<Map<String, dynamic>> files = [];
+  //   for (var ref in result.items) {
+  //     final metadata = await ref.getMetadata();
+  //     files.add({
+  //       'name': ref.name,
+  //       'date': metadata.timeCreated,
+  //       'ref': ref,
+  //       'source': source,
+  //       'category': metadata.customMetadata?['category'] ?? 'Unknown',
+  //       'uploader_email':
+  //           metadata.customMetadata?['uploader_email'] ?? 'Unknown',
+  //     });
+  //   }
+  //   return files;
+  // }
 
   Future<void> fetchAllFiles() async {
-    setState(() {
-      isLoadingFiles = true;
-    });
+    try {
+      setState(() {
+        isLoadingFiles = true;
+      });
 
-    List<Map<String, dynamic>> files = [];
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user == null) {
+        throw Exception("User is not logged in.");
+      }
 
-    final ListResult uploadResult =
-        await FirebaseStorage.instance.ref().child('uploads').listAll();
-    files.addAll(await _fetchFilesFromResult(uploadResult, 'uploads'));
+      List<Map<String, dynamic>> files = [];
 
-    final ListResult downloadResult =
-        await FirebaseStorage.instance.ref().child('download').listAll();
-    files.addAll(await _fetchFilesFromResult(downloadResult, 'download'));
+      // 📂 **جلب الملفات من مجلد 'uploads'**
+      final ListResult uploadResult =
+      await FirebaseStorage.instance.ref().child('uploads').listAll();
+      files.addAll(await _fetchFilesFromResult(uploadResult, 'uploads'));
 
-    files.sort((a, b) => b['date'].compareTo(a['date']));
+      // 📂 **جلب الملفات من مجلد 'download'**
+      final ListResult downloadResult =
+      await FirebaseStorage.instance.ref().child('download').listAll();
+      files.addAll(await _fetchFilesFromResult(downloadResult, 'download'));
 
-    setState(() {
-      uploadedFiles = files;
-      isLoadingFiles = false;
-    });
+      // **🔹 ترتيب الملفات حسب تاريخ الرفع (الأحدث أولًا)**
+      files.sort((a, b) => b['date'].compareTo(a['date']));
+
+      setState(() {
+        uploadedFiles = files;
+        isLoadingFiles = false;
+      });
+    } catch (e) {
+      setState(() {
+        isLoadingFiles = false;
+      });
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: Text(context.localizations.error),
+            content: Text("Error fetching files: $e"),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(context.localizations.ok),
+              ),
+            ],
+          );
+        },
+      );
+    }
   }
 
   Future<List<Map<String, dynamic>>> _fetchFilesFromResult(
@@ -60,12 +131,12 @@ class _FileScreenState extends State<FileScreen> {
         'ref': ref,
         'source': source,
         'category': metadata.customMetadata?['category'] ?? 'Unknown',
-        'uploader_email':
-            metadata.customMetadata?['uploader_email'] ?? 'Unknown',
+        'uploader_email': metadata.customMetadata?['uploader_email'] ?? 'Unknown',
       });
     }
     return files;
   }
+
 
   List<Map<String, dynamic>> getFilteredFiles() {
     return uploadedFiles.where((file) {

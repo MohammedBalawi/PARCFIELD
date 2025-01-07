@@ -1641,9 +1641,86 @@ class _AccountFilesScreenState extends State<AccountFilesScreen> {
     await fetchUploadedFiles();
     await fetchSentFiles();
   }
-
+  //
+  // Future<void> fetchUploadedFiles() async {
+  //   try {
+  //     final ListResult result =
+  //     await FirebaseStorage.instance.ref().child('uploads').listAll();
+  //
+  //     List<Map<String, dynamic>> files = [];
+  //
+  //     for (var ref in result.items) {
+  //       final metadata = await ref.getMetadata();
+  //       if (metadata.customMetadata?['uploader_email'] == widget.email) {
+  //         files.add({
+  //           'name': ref.name,
+  //           'date': metadata.timeCreated,
+  //           'ref': ref,
+  //           'category': metadata.customMetadata?['category'] ?? 'Unknown',
+  //           'uploader_email':
+  //           metadata.customMetadata?['uploader_email'] ?? 'Unknown',
+  //         });
+  //       }
+  //     }
+  //
+  //     files.sort((a, b) => b['date'].compareTo(a['date']));
+  //
+  //     setState(() {
+  //       uploadedFiles = files;
+  //       isLoadingFiles = false;
+  //     });
+  //   } catch (e) {
+  //     setState(() {
+  //       isLoadingFiles = false;
+  //     });
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(content: Text('Error fetching uploaded files: $e')),
+  //     );
+  //   }
+  // }
+  //
+  // Future<void> fetchSentFiles() async {
+  //   try {
+  //     final ListResult result =
+  //     await FirebaseStorage.instance.ref().child('download').listAll();
+  //
+  //     List<Map<String, dynamic>> files = [];
+  //
+  //     for (var ref in result.items) {
+  //       final metadata = await ref.getMetadata();
+  //       if (metadata.customMetadata?['sand_email'] == widget.email) {
+  //         files.add({
+  //           'name': ref.name,
+  //           'date': metadata.timeCreated,
+  //           'ref': ref,
+  //           'category': metadata.customMetadata?['category'] ?? 'Unknown',
+  //           'uploader_email':
+  //           metadata.customMetadata?['uploader_email'] ?? 'Unknown',
+  //         });
+  //       }
+  //     }
+  //
+  //     files.sort((a, b) => b['date'].compareTo(a['date']));
+  //
+  //     setState(() {
+  //       sentFiles = files;
+  //       isLoadingFiles = false;
+  //     });
+  //   } catch (e) {
+  //     setState(() {
+  //       isLoadingFiles = false;
+  //     });
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(content: Text('Error fetching sent files: $e')),
+  //     );
+  //   }
+  // }
   Future<void> fetchUploadedFiles() async {
     try {
+      setState(() {
+        isLoadingFiles = true;
+      });
+
       final ListResult result =
       await FirebaseStorage.instance.ref().child('uploads').listAll();
 
@@ -1657,8 +1734,7 @@ class _AccountFilesScreenState extends State<AccountFilesScreen> {
             'date': metadata.timeCreated,
             'ref': ref,
             'category': metadata.customMetadata?['category'] ?? 'Unknown',
-            'uploader_email':
-            metadata.customMetadata?['uploader_email'] ?? 'Unknown',
+            'uploader_email': metadata.customMetadata?['uploader_email'] ?? 'Unknown',
           });
         }
       }
@@ -1681,6 +1757,10 @@ class _AccountFilesScreenState extends State<AccountFilesScreen> {
 
   Future<void> fetchSentFiles() async {
     try {
+      setState(() {
+        isLoadingFiles = true;
+      });
+
       final ListResult result =
       await FirebaseStorage.instance.ref().child('download').listAll();
 
@@ -1694,8 +1774,7 @@ class _AccountFilesScreenState extends State<AccountFilesScreen> {
             'date': metadata.timeCreated,
             'ref': ref,
             'category': metadata.customMetadata?['category'] ?? 'Unknown',
-            'uploader_email':
-            metadata.customMetadata?['uploader_email'] ?? 'Unknown',
+            'uploader_email': metadata.customMetadata?['uploader_email'] ?? 'Unknown',
           });
         }
       }

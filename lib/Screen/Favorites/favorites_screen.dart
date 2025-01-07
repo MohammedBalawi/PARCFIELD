@@ -142,12 +142,42 @@ class _FavoritesState extends State<Favorites> {
     }
   }
 
+  // Future<void> fetchUploadedFiles() async {
+  //   User? user = FirebaseAuth.instance.currentUser;
+  //   if (user == null) return;
+  //
+  //   final ListResult result =
+  //       await FirebaseStorage.instance.ref().child('up').listAll();
+  //
+  //   List<Map<String, dynamic>> files = [];
+  //
+  //   for (var ref in result.items) {
+  //     final metadata = await ref.getMetadata();
+  //     if (metadata.customMetadata?['uploader_email'] == user.email) {
+  //       files.add({
+  //         'name': ref.name,
+  //         'date': metadata.timeCreated,
+  //         'ref': ref,
+  //         'category': metadata.customMetadata?['category'] ?? 'Unknown',
+  //         'rowCount': metadata.customMetadata?['rowCount'] ?? 'Unknown',
+  //       });
+  //     }
+  //   }
+  //
+  //   files.sort((a, b) => b['date'].compareTo(a['date']));
+  //
+  //   setState(() {
+  //     uploadedFiles = files;
+  //     isLoadingFiles = false;
+  //   });
+  // }
+
   Future<void> fetchUploadedFiles() async {
     User? user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
 
     final ListResult result =
-        await FirebaseStorage.instance.ref().child('up').listAll();
+    await FirebaseStorage.instance.ref().child('up').listAll();
 
     List<Map<String, dynamic>> files = [];
 
